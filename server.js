@@ -57,6 +57,7 @@ app.post('/webhook/checkout', async (req, res) => {
     if (paymentStatus === 'approved' || 
         paymentStatus === 'paid' || 
         event === 'payment.approved' || 
+        event === 'pix.generated' || 
         event === 'pix.paid' || 
         event === 'card.paid') {
       console.log('✅ Pagamento aprovado! Processando...');
