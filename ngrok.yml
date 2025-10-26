@@ -1,0 +1,8 @@
+version: 3
+agent:
+  authtoken: 34a8PSJdRAW5TJ0GeVxRvwniV8Q_4TzkpvZ8ZEZc2WfCCYjv9
+tunnels:
+  webhook:
+    proto: http
+    addr: 3001
+    inspect: true
