@@ -41,16 +41,24 @@ app.post('/webhook/checkout', async (req, res) => {
       transaction_id,
       customer,
       product,
+      products,
       payment,
       status
     } = webhookData;
 
+    // Status pode estar em diferentes lugares dependendo do evento
+    const paymentStatus = status || payment?.status || data?.status;
+
     console.log('🔔 Evento:', event);
-    console.log('💰 Status:', status);
+    console.log('💰 Status:', paymentStatus);
     console.log('👤 Cliente:', customer);
 
-    // Processar apenas pagamentos aprovados
-    if (status === 'approved' || status === 'paid' || event === 'payment.approved') {
+    // Processar apenas pagamentos aprovados (pix.paid ou card.paid)
+    if (paymentStatus === 'approved' || 
+        paymentStatus === 'paid' || 
+        event === 'payment.approved' || 
+        event === 'pix.paid' || 
+        event === 'card.paid') {
       console.log('✅ Pagamento aprovado! Processando...');
 
       // Dados do comprador
@@ -58,11 +66,12 @@ app.post('/webhook/checkout', async (req, res) => {
         nome: customer?.name || data?.customer?.name || 'Não informado',
         email: customer?.email || data?.customer?.email || 'Não informado',
         telefone: customer?.phone || data?.customer?.phone || 'Não informado',
-        transaction_id: transaction_id || data?.transaction_id || 'N/A',
-        valor: payment?.amount || data?.amount || 0,
-        status: status || 'approved',
-        produto: product?.name || data?.product?.name || 'Atividades do Céu',
+        transaction_id: transaction_id || payment?.id || data?.transaction_id || 'N/A',
+        valor: payment?.amount || products?.[0]?.price || product?.price || data?.amount || 0,
+        status: paymentStatus || 'approved',
+        produto: products?.[0]?.name || product?.name || product?.title || data?.product?.name || 'Atividades do Céu',
         data_compra: new Date().toISOString(),
+        evento: event,
         webhook_completo: webhookData
       };
 
